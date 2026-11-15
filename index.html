@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Omadli Aylana</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #0b0614;
+            color: #fff;
+            padding-bottom: 70px;
+        }
+        .header {
+            text-align: center;
+            padding: 20px 15px 10px;
+        }
+        .header h1 {
+            color: #f3ce63;
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+        .header p {
+            color: #b0a8c0;
+            font-size: 13px;
+        }
+        .balance-card {
+            background: linear-gradient(135deg, #1c132d 0%, #150d22 100%);
+            border: 1px solid #3c2a5c;
+            border-radius: 16px;
+            margin: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+        .balance-title {
+            font-size: 13px;
+            color: #b0a8c0;
+            margin-bottom: 8px;
+        }
+        .balance-amount {
+            font-size: 32px;
+            font-weight: bold;
+            color: #f3ce63;
+            margin-bottom: 15px;
+        }
+        .withdraw-btn {
+            background: #f3ce63;
+            color: #0b0614;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .section {
+            display: none;
+            padding: 15px;
+        }
+        .section.active {
+            display: block;
+        }
+        .card {
+            background: #150d22;
+            border: 1px solid #2d1e46;
+            border-radius: 14px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .card h3 {
+            color: #f3ce63;
+            margin-bottom: 10px;
+        }
+        .card p {
+            font-size: 13px;
+            color: #b0a8c0;
+            margin-bottom: 15px;
+        }
+        .action-btn {
+            background: linear-gradient(135deg, #f3ce63 0%, #d4af37 100%);
+            color: #0b0614;
+            border: none;
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        /* Navigatsiya paneli */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #11091d;
+            border-top: 1px solid #281a3e;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 100;
+        }
+        .nav-item {
+            background: none;
+            border: none;
+            color: #8c82a0;
+            font-size: 11px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+        }
+        .nav-item.active {
+            color: #f3ce63;
+        }
+        .nav-item span {
+            font-size: 18px;
+            margin-bottom: 3px;
+        }
+    -webkit-tap-highlight-color: transparent;
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Omadli Aylana | 🎁</h1>
+        <p>Har kuni omad siz bilan</p>
+    </div>
+
+    <!-- BOSH SAHIFA -->
+    <div id="home" class="section active">
+        <div class="balance-card">
+            <div class="balance-title">Balansingiz</div>
+            <div class="balance-amount">2 580 000 so'm</div>
+            <button class="withdraw-btn" onclick="switchTab('withdraw')">Yechib olish</button>
+        </div>
+        <div class="card">
+            <h3>Xush kelibsiz!</h3>
+            <p>Ruletkani aylantiring, do'stlaringizni taklif qiling va katta summaga ega bo'ling.</p>
+        </div>
+    </div>
+
+    <!-- RULETKA -->
+    <div id="roulette" class="section">
+        <div class="card">
+            <h3>Omad ruletkasi</h3>
+            <p>Aylantiring va omadingizni sinang.</p>
+            <div style="font-size: 40px; margin: 20px 0;">🎡</div>
+            <button class="action-btn" onclick="alert('Aylantirish uchun do\'stlaringizni taklif qiling!')">Aylantirish</button>
+            <p style="margin-top: 15px; font-size: 12px;">Qolgan aylantirish: 0</p>
+        </div>
+    </div>
+
+    <!-- VAZIFALAR -->
+    <div id="tasks" class="section">
+        <div class="card">
+            <h3>Vazifalar</h3>
+            <p>Vazifani bajaring, qo'shimcha aylantirish oling.</p>
+            <hr style="border: 0; border-top: 1px solid #2d1e46; margin: 15px 0;">
+            <p style="text-align: left; margin-bottom: 10px;">👥 15 ta do'stingizni taklif qiling (+15 aylanish)</p>
+            <button class="action-btn" onclick="switchTab('friends')">Bajarish</button>
+        </div>
+    </div>
+
+    <!-- DO'STLAR -->
+    <div id="friends" class="section">
+        <div class="card">
+            <h3>Do'stlarni taklif qilish</h3>
+            <p>Har bir yangi do'st uchun +1 aylantirish olasiz.</p>
+            <div style="font-size: 24px; color: #f3ce63; margin: 15px 0;">0 / 15</div>
+            <p>Pulni yechish uchun 15 ta do'st kerak.</p>
+            <br>
+            <button class="action-btn" onclick="alert('Sizning havolangiz nusxalandi!')">Do'stlarga ulashish</button>
+        </div>
+    </div>
+
+    <!-- YECHIB OLISH -->
+    <div id="withdraw" class="section">
+        <div class="card">
+            <h3>Pulni yechish</h3>
+            <p>Yutuqlaringizni kartangizga o'tkazing.</p>
+            <div style="background: #1c132d; padding: 12px; border-radius: 10px; margin-bottom: 15px; font-size: 13px; color: #ff6b6b;">
+                ⚠️ Pulni yechish uchun 15 ta do'stingizni taklif qiling (0/15)
+            </div>
+            <input type="text" placeholder="Karta raqami (0000 0000 0000 0000)" style="width: 100%; padding: 12px; background: #0b0614; border: 1px solid #3c2a5c; border-radius: 8px; color: #fff; margin-bottom: 15px; text-align: center;">
+            <button class="action-btn" onclick="alert('Shartlar bajarilmagan!')">Ariza qoldirish</button>
+        </div>
+    </div>
+
+    <!-- PASTKI MENYU -->
+    <div class="nav-bar">
+        <button class="nav-item active" onclick="switchTab('home')">
+            <span>🏠</span>Bosh sahifa
+        </button>
+        <button class="nav-item" onclick="switchTab('roulette')">
+            <span>🎡</span>Ruletka
+        </button>
+        <button class="nav-item" onclick="switchTab('tasks')">
+            <span>📋</span>Vazifalar
+        </button>
+        <button class="nav-item" onclick="switchTab('friends')">
+            <span>👥</span>Do'stlar
+        </button>
+        <button class="nav-item" onclick="switchTab('withdraw')">
+            <span>💳</span>Yechish
+        </button>
+    </div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+
+        function switchTab(tabId) {
+            // Bo'limlarni almashtirish
+            document.querySelectorAll('.section').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+
+            // Menyudagi faol tugmani belgilash
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
+    </script>
+</body>
+  </html>
+  
