@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Omadli Aylana</title>
+    <style>
+        :root {
+            --bg-color: #0b0b0e;
+            --text-color: #ffffff;
+            --card-bg: #16161e;
+            --primary-color: #ffd700;
+            --accent-color: #00d2ff;
+            --border-color: #333340;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding-bottom: 75px;
+        }
+
+        header {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(180deg, #1f1f2e, #121218);
+            border-bottom: 2px solid #ffd700;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .balance-box {
+            font-weight: bold;
+            font-size: 14px;
+            background: rgba(255, 215, 0, 0.1);
+            color: #ffd700;
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid #ffd700;
+        }
+
+        .spins-box {
+            font-weight: bold;
+            font-size: 14px;
+            background: rgba(0, 210, 255, 0.1);
+            color: #00d2ff;
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid #00d2ff;
+        }
+
+        .container {
+            max-width: 450px;
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .page {
+            display: none;
+            width: 100%;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .page.active {
+            display: flex;
+        }
+
+        /* Hashamatli Baraban Ramkasi */
+        .wheel-outer-ring {
+            position: relative;
+            width: 310px;
+            height: 310px;
+            margin: 15px 0;
+            border-radius: 50%;
+            background: radial-gradient(circle, #ffe066 0%, #f5af19 50%, #e65c00 100%);
+            padding: 8px;
+            box-shadow: 0 0 35px rgba(255, 215, 0, 0.5), inset 0 0 15px rgba(0,0,0,0.8);
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #111;
+        }
+
+        .pointer {
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 14px solid transparent;
+            border-right: 14px solid transparent;
+            border-top: 30px solid #ff3333;
+            z-index: 20;
+            filter: drop-shadow(0 3px 6px rgba(0,0,0,0.7));
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
+        .spin-btn {
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            color: #111;
+            border: none;
+            padding: 14px 45px;
+            font-size: 18px;
+            font-weight: 900;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+            margin-top: 15px;
+            letter-spacing: 1px;
+            transition: 0.2s;
+        }
+
+        .spin-btn:active {
+            transform: scale(0.95);
+        }
+
+        .section-card {
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 5px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            border: 1px solid var(--border-color);
+            box-sizing: border-box;
+        }
+
+        .section-card h3 {
+            margin-top: 0;
+            font-size: 18px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 8px;
+            color: #ffd700;
+        }
+
+        .task-item, .rank-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .task-item:last-child, .rank-item:last-child {
+            border-bottom: none;
+        }
+
+        .rank-item.me {
+            background: rgba(255, 215, 0, 0.12);
+            padding: 12px 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 215, 0, 0.4);
+            margin-top: 5px;
+        }
+
+        .rank-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .rank-badge {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #252536;
+            color: #ffd700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .rank-item:nth-child(1) .rank-badge { background: #ffd700; color: #000; }
+        .rank-item:nth-child(2) .rank-badge { background: #c0c0c0; color: #000; }
+        .rank-item:nth-child(3) .rank-badge { background: #cd7f32; color: #000; }
+
+        .rank-score {
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .task-info {
+            font-size: 14px;
+            text-align: left;
+        }
+
+        .task-info span {
+            display: block;
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .task-btn {
+            background-color: var(--accent-color);
+            color: #0b0b0e;
+            border: none;
+            padding: 7px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .task-btn.completed {
+            background-color: #28a745;
+            color: white;
+            cursor: default;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #16161e;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 100;
+        }
+
+        .nav-item {
+            text-align: center;
+            color: #888;
+            font-size: 11px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            flex: 1;
+        }
+
+        .nav-item.active {
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .nav-item span {
+            display: block;
+            font-size: 19px;
+            margin-bottom: 2px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+        .modal-content {
+            background: #16161e;
+            border: 2px solid #ffd700;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 300px;
+            width: 90%;
+            color: #fff;
+        }
+        .modal-content button {
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            color: #111;
+            border: none;
+            padding: 9px 25px;
+            border-radius: 8px;
+            margin-top: 15px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="balance-box">Balans: <span id="balance">0</span> so'm</div>
+        <div class="spins-box">Urinishlar: <span id="spins">1</span> ta</div>
+    </header>
+
+    <div class="container">
+        
+        <!-- 1-SAHIFA: ASOSIY -->
+        <div id="page-game" class="page active">
+            <h2 style="margin: 5px 0 15px 0; font-size: 20px; color: #ffd700; text-shadow: 0 0 10px rgba(255,215,0,0.5);">🎰 SPIN TO WIN 🎰</h2>
+            
+            <div class="wheel-outer-ring">
+                <div class="pointer"></div>
+                <div class="wheel-container">
+                    <canvas id="wheel" width="280" height="280"></canvas>
+                </div>
+            </div>
+
+            <button class="spin-btn" onclick="spinWheel()">AYLANTIRISH</button>
+        </div>
+
+        <!-- 2-SAHIFA: VAZIFALAR -->
+        <div id="page-tasks" class="page">
+            <div class="section-card">
+                <h3>📌 Kunlik va Qo'shimcha Vazifalar</h3>
+                <div class="task-item">
+                    <div class="task-info">
+                        Kanalga obuna bo'lish
+                        <span>+1 ta aylantirish (Bir martalik)</span>
+                    </div>
+                    <button id="subTaskBtn" class="task-btn" onclick="completeSubscription()">Bajarish</button>
+                </div>
+                <div class="task-item">
+                    <div class="task-info">
+                        Do'st taklif qilish
+                        <span>Har bir do'st uchun +2 ta urinish</span>
+                    </div>
+                    <button class="task-btn" onclick="inviteFriend()">Taklif</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3-SAHIFA: REYTING -->
+        <div id="page-rating" class="page">
+            <div class="section-card">
+                <h3>🏆 Top O'yinchilar Reytingi</h3>
+                <div id="ratingList"></div>
+            </div>
+        </div>
+
+        <!-- 4-SAHIFA: TARIX -->
+        <div id="page-history" class="page">
+            <div class="section-card">
+                <h3>💳 To'lovlar va Yutuqlar Tarixi</h3>
+                <div id="historyList" style="font-size: 13px; color: #aaa; padding: 10px 0; text-align: center;">
+                    Hozircha yutuqlar tarixi bo'sh.
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="switchPage('game', this)">
+            <span>🎰</span>O'ynash
+        </button>
+        <button class="nav-item" onclick="switchPage('tasks', this)">
+            <span>📋</span>Vazifalar
+        </button>
+        <button class="nav-item" onclick="switchPage('rating', this)">
+            <span>🏆</span>Reyting
+        </button>
+        <button class="nav-item" onclick="switchPage('history', this)">
+            <span>📜</span>Tarix
+        </button>
+    </nav>
+
+    <div id="winModal" class="modal">
+        <div class="modal-content">
+            <h3 style="color: #ffd700; margin-top:0;">🎉 TABRIKLAYMIZ!</h3>
+            <p id="winText" style="font-size: 18px; font-weight: bold;">Siz yutib oldingiz!</p>
+            <button onclick="closeModal()">AJOYIB</button>
+        </div>
+    </div>
+
+    <script>
+        // Siz so'ragan 2K, 4K, 5K, 6K, 8K va 10K summalar va yorqin ranglar
+        const sectors = [
+            { label: "2K", value: 2000, color: "#e63946" },   // Qizil
+            { label: "4K", value: 4000, color: "#2a9d8f" },   // Yashil
+            { label: "5K", value: 5000, color: "#e76f51" },   // To'q sariq
+            { label: "6K", value: 6000, color: "#3a86ff" },   // Ko'k
+            { label: "8K", value: 8000, color: "#8338ec" },   // Binafsha
+            { label: "10K", value: 10000, color: "#ff006e" }  // Pushti
+        ];
+
+        const canvas = document.getElementById("wheel");
+        const ctx = canvas.getContext("2d");
+        const totalSectors = sectors.length;
+        const arcSize = (2 * Math.PI) / totalSectors;
+
+        let currentRotation = 0;
+        let isSpinning = false;
+
+        let balance = parseInt(localStorage.getItem('user_balance')) || 0;
+        let spins = parseInt(localStorage.getItem('user_spins')) || 1;
+        let isSubscribed = localStorage.getItem('is_subscribed') === 'true';
+        let history = JSON.parse(localStorage.getItem('user_history')) || [];
+
+        let lastSpinDate = localStorage.getItem('last_spin_date');
+        let today = new Date().toDateString();
+
+        if (lastSpinDate !== today) {
+            spins = Math.max(spins, 1);
+            localStorage.setItem('last_spin_date', today);
+            localStorage.setItem('user_spins', spins);
+        }
+
+        const topPlayers = [
+            { name: "Jasurbek_01", score: 45000 },
+            { name: "Sardor_King", score: 32000 },
+            { name: "Malika_99", score: 21000 },
+            { name: "Bekzod_Pro", score: 15000 },
+            { name: "Diyorbek_UZ", score: 9500 },
+            { name: "Aziz_777", score: 5000 }
+        ];
+
+        updateUI();
+        renderHistory();
+        renderRating();
+        drawWheel(0);
+
+        function drawWheel(angleOffset) {
+            ctx.clearRect(0, 0, 280, 280);
+            ctx.save();
+            ctx.translate(140, 140);
+            ctx.rotate(angleOffset);
+
+            for (let i = 0; i < totalSectors; i++) {
+                const angle = i * arcSize;
+                ctx.beginPath();
+                ctx.fillStyle = sectors[i].color;
+                ctx.moveTo(0, 0);
+                ctx.arc(0, 0, 140, angle, angle + arcSize);
+                ctx.lineTo(0, 0);
+                ctx.fill();
+
+                // Oltin rangli hoshiya chiziqlari
+                ctx.strokeStyle = "#ffd700";
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                ctx.save();
+                ctx.rotate(angle + arcSize / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = "#ffffff";
+                ctx.font = "bold 22px Arial";
+                ctx.shadowColor = "rgba(0, 0, 0, 0.9)";
+                ctx.shadowBlur = 6;
+                ctx.fillText(sectors[i].label, 110, 8);
+                ctx.restore();
+            }
+
+            // O'rtadagi tilla rangli "SPIN" doirasi
+            ctx.beginPath();
+            ctx.arc(0, 0, 40, 0, 2 * Math.PI);
+            let centerGradient = ctx.createRadialGradient(0, 0, 5, 0, 0, 40);
+            centerGradient.addColorStop(0, "#ffe066");
+            centerGradient.addColorStop(1, "#f5af19");
+            ctx.fillStyle = centerGradient;
+            ctx.fill();
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = "#ffffff";
+            ctx.stroke();
+
+            // "SPIN" yozuvi
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = "#111111";
+            ctx.font = "900 15px Arial";
+            ctx.fillText("SPIN", 0, 0);
+
+            ctx.restore();
+        }
+
+        function updateUI() {
+            document.getElementById("balance").innerText = balance;
+            document.getElementById("spins").innerText = spins;
+
+            const subBtn = document.getElementById("subTaskBtn");
+            if (isSubscribed) {
+                subBtn.innerText = "Bajarildi";
+                subBtn.classList.add("completed");
+            }
+        }
+
+        function switchPage(pageId, btn) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+            document.getElementById('page-' + pageId).classList.add('active');
+            btn.classList.add('active');
+
+            if (pageId === 'rating') renderRating();
+        }
+
+        function spinWheel() {
+            if (isSpinning) return;
+            if (spins <= 0) {
+                alert("Urinishlar qolmadi! Vazifalarni bajarib qo'shimcha urinish oling.");
+                return;
+            }
+
+            isSpinning = true;
+            spins--;
+            localStorage.setItem('user_spins', spins);
+            updateUI();
+
+            const randomSector = Math.floor(Math.random() * totalSectors);
+            const degreesPerSector = 360 / totalSectors;
+            
+            const currentMod = ((currentRotation % 360) + 360) % 360;
+            const targetSectorCenterAngle = randomSector * degreesPerSector + degreesPerSector / 2;
+            const desiredMod = (((360 - targetSectorCenterAngle - 90) % 360) + 360) % 360;
+            const diff = ((desiredMod - currentMod) + 360) % 360;
+
+            const extraRotations = 6;
+            const totalDegrees = (360 * extraRotations) + diff;
+
+            const spinDuration = 3500;
+            const startTime = performance.now();
+            const startRotation = currentRotation;
+
+            function animate(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / spinDuration, 1);
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+
+                currentRotation = startRotation + (totalDegrees * easeOut);
+                drawWheel((currentRotation * Math.PI) / 180);
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    isSpinning = false;
+                    const winningItem = sectors[randomSector];
+                    balance += winningItem.value;
+                    localStorage.setItem('user_balance', balance);
+                    
+                    history.unshift(`${winningItem.label} yutib olindi (${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})})`);
+                    localStorage.setItem('user_history', JSON.stringify(history));
+                    updateUI();
+                    renderHistory();
+                    renderRating();
+
+                    showWinModal(winningItem.label);
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+
+        function renderRating() {
+            const list = document.getElementById("ratingList");
+            const allPlayers = [...topPlayers, { name: "Siz (Mening hisobim)", score: balance, isMe: true }];
+            allPlayers.sort((a, b) => b.score - a.score);
+
+            list.innerHTML = allPlayers.map((player, index) => `
+                <div class="rank-item ${player.isMe ? 'me' : ''}">
+                    <div class="rank-left">
+                        <div class="rank-badge">${index + 1}</div>
+                        <div>${player.name}</div>
+                    </div>
+                    <div class="rank-score">${player.score.toLocaleString()} so'm</div>
+                </div>
+            `).join('');
+        }
+
+        function renderHistory() {
+            const list = document.getElementById("historyList");
+            if (history.length === 0) {
+                list.innerHTML = "Hozircha yutuqlar tarixi bo'sh.";
+                return;
+            }
+            list.innerHTML = history.map(item => `<div style="padding: 8px 0; border-bottom: 1px solid #252536; color: #ffd700;">🎁 ${item}</div>`).join('');
+        }
+
+        function completeSubscription() {
+            if (isSubscribed) return;
+            window.open("https://t.me/OmadliAylana_bot", "_blank");
+            isSubscribed = true;
+            localStorage.setItem('is_subscribed', 'true');
+            spins += 1;
+            localStorage.setItem('user_spins', spins);
+            updateUI();
+            alert("Tabriklayman! Kanalga obuna bo'ldingiz va +1 ta urinish qo'shildi.");
+        }
+
+        function inviteFriend() {
+            const refLink = `https://t.me/OmadliAylana_bot?start=ref_${Math.floor(Math.random()*1000000)}`;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(refLink).then(() => {
+                    alert("Taklif havolasi nusxalandi! Do'stlaringizga yuboring (+2 urinish).");
+                });
+            }
+            spins += 2;
+            localStorage.setItem('user_spins', spins);
+            updateUI();
+        }
+
+        function showWinModal(text) {
+            document.getElementById("winText").innerText = `Siz ${text} mukofotini yutib oldingiz!`;
+            document.getElementById("winModal").style.display = "flex";
+        }
+
+        function closeModal() {
+            document.getElementById("winModal").style.display = "none";
+        }
+    </script>
+</body>
+</html>
